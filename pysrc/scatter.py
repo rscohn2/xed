@@ -108,7 +108,7 @@ def scatter_generate_bit_by_bit(length, trimmed_bits, code, verbose=False):
             nth_b = bit_count[b]
             key = b + str(nth_b)
             if verbose:
-                print "#", i,b, nth_b,key
+                print("#", i,b, nth_b,key)
             if shift == 0:
                 s.append("%s %s " % (bar, code[key] ))
             else:
@@ -132,7 +132,7 @@ def scatter_gen(pattern, fields):
     verbose = False
     #verbose = True
     if verbose:
-        print "pattern: %s fields: %s" %(pattern, str(fields))
+        print("pattern: %s fields: %s" %(pattern, str(fields)))
     code = {}
     for (n,p) in fields:
         length = len(p) # we need length bits from n
@@ -141,7 +141,7 @@ def scatter_gen(pattern, fields):
         #code[p] = '(%s & 0x%x)' % (n, mask) # the whole field
         code[p] = n
         if verbose:
-            print  p, code[p]
+            print(p, code[p])
 
              
         # we must handle hetergenous bit sequences like jii. In this
@@ -167,7 +167,7 @@ def scatter_gen(pattern, fields):
             last = s
             code[key] = c
             if verbose:
-                print  'key: %s   c-expression: %s' % (key, c)
+                print('key: %s   c-expression: %s' % (key, c))
 
     trimmed = underscore_pattern.sub('', pattern)
     length = len(trimmed)
@@ -191,8 +191,8 @@ def test_scatter():
 
     (length,s) = scatter_gen(a,b)
     #s += ';'
-    print length
-    print s
+    print(length)
+    print(s)
 
 
     # this is a pattern for encoding
@@ -205,8 +205,8 @@ def test_scatter():
 
     (length,s) = scatter_gen(a,b)
     #s += ';'
-    print length
-    print s
+    print(length)
+    print(s)
 
     # this is a pattern for encoding
     a = 'xxx_yyyyy'
@@ -218,8 +218,8 @@ def test_scatter():
 
     (length,s) = scatter_gen(a,b)
     #s += ';'
-    print length
-    print s
+    print(length)
+    print(s)
 
 
 if __name__ == '__main__':

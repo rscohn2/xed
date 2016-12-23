@@ -174,7 +174,7 @@ class generator_inputs_t(object):
         """Return a list of all the input file names so we can hook up
         the dependences"""
         fnames = []
-        for flist in self.files.itervalues():
+        for flist in self.files.values():
             fnames.extend(flist)
         return fnames
     
@@ -437,9 +437,9 @@ def header_tag_files(env, files, legal_header, script_files=False):
        xbc.cdie("XED ERROR: mfile.py could not find scripts directory")
 
     for g in files:
-       print "G: ", g
+       print("G: ", g)
        for f in glob.glob(g):
-          print "F: ", f
+          print("F: ", f)
           if script_files:
              apply_legal_header.apply_header_to_data_file(legal_header, f)
           else:
@@ -998,13 +998,13 @@ def repack_and_clean(args, env):
 
     # step 3: parse the all_syms_fn.
     all_syms = file(all_syms_fn).readlines()
-    all_syms = map(lambda x: x.strip(), all_syms)
-    all_syms = set(map(lambda x: x.split(' ',2)[2], all_syms))
+    all_syms = [x.strip() for x in all_syms]
+    all_syms = set([x.split(' ',2)[2] for x in all_syms])
 
     # step 4: subtract the public symbols
     api_names_fn = env.src_dir_join(mbuild.join('misc','API.NAMES.txt'))
     api_names = file(api_names_fn).readlines()
-    api_names = set(map(lambda x: x.strip(), api_names))
+    api_names = set([x.strip() for x in api_names])
 
     private_syms = all_syms - api_names
 
@@ -1242,16 +1242,16 @@ def build_libxed(env,work_queue):
                 elif cmd == 'remove':
                     gc.remove_file(ptype,full_name)
                 elif cmd == 'add-source':
-                    print "CONSIDERING SOURCE", full_name, ptype, priority
+                    print("CONSIDERING SOURCE", full_name, ptype, priority)
                     if source_prio[ptype] < priority:
-                        print "ADDING SOURCE", full_name, ptype, priority
+                        print("ADDING SOURCE", full_name, ptype, priority)
                         source_prio[ptype] = priority
                         sources[ptype] = full_name
                 else:
                     xbc.cdie("Invalid extension file cmd (1st token):" +
                                " [%s]\nMust be 'add' or 'remove'" % line)
 
-    for v in sources.itervalues():
+    for v in sources.values():
         sources_to_add.append(v)
 
     gen_dag = mbuild.dag_t('xedgen', env=env)
@@ -1573,7 +1573,7 @@ def build_examples(env):
     
     try:
         retval = xed_examples_mbuild.examples_work(env_ex)
-    except Exception, e:
+    except Exception as e:
         xbc.handle_exception_and_die(e)
     if 'example_exes' in env_ex:
         env['example_exes'] = env_ex['example_exes']
@@ -1667,9 +1667,8 @@ def _gen_lib_names(env):
         env['base_lib']=base_lib  
         libnames.extend(env.expand(libnames_template))
 
-    libs = map(lambda x: mbuild.join(env['build_dir'], x),
-               libnames)
-    libs = filter(lambda x: os.path.exists(x), libs)
+    libs = [mbuild.join(env['build_dir'], x) for x in libnames]
+    libs = [x for x in libs if os.path.exists(x)]
     return libs
 
 do_system_copy = True
@@ -1868,7 +1867,7 @@ def build_kit(env, work_queue):
         xbc.cdie("No libraries found for install")
 
     for f in libs:
-        print f
+        print(f)
         if f.find('.dll') != -1:
             mbuild.copy_file(f, bin_dir)
         else:
@@ -1915,7 +1914,7 @@ def build_kit(env, work_queue):
         wfiles = os.walk( env['install_dir'])
         zip_files = []
         for (path,dirs,files) in wfiles:
-            zip_files.extend( map(lambda x: mbuild.join(path,x), files) )
+            zip_files.extend( [mbuild.join(path,x) for x in files] )
         import zipfile
         archive = env['install_dir'] + '.zip'
         z = zipfile.ZipFile(archive,'w')
@@ -1997,7 +1996,7 @@ def emit_defines_header(env):
     klist.append("#if !defined(_XED_BUILD_DEFINES_H_)")
     klist.append("#  define _XED_BUILD_DEFINES_H_\n")
 
-    kys = env['DEFINES'].keys()
+    kys = list(env['DEFINES'].keys())
     kys.sort()
     for d in kys:
         if re.match(r'^XED_',d):
@@ -2005,7 +2004,7 @@ def emit_defines_header(env):
             klist.extend(_emit_define(define))
     klist.append("#endif")
     
-    klist = map(lambda x: x+'\n', klist)
+    klist = [x+'\n' for x in klist]
     
     fn = env.build_dir_join(output_file_name)
     if mbuild.hash_list(klist) != mbuild.hash_file(fn):
@@ -2116,7 +2115,7 @@ def _run_canned_tests(env,osenv):
                                                                osenv=osenv)
     if retcode == 1:
        for l in stdout:
-          print l.rstrip()
+          print(l.rstrip())
 
     for l in stdout:
         l = l.rstrip()

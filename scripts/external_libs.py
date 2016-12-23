@@ -36,18 +36,18 @@ def _grab_ldd_libraries(lines):
             files.append(t[-2])
         elif pieces == 4:
             if re.search('not found',line):
-                print "\n\nWARNING: SKIPPING MISSING LIBRARY: [%s]\n\n" % \
-                    (t[0])
+                print("\n\nWARNING: SKIPPING MISSING LIBRARY: [%s]\n\n" % \
+                    (t[0]))
             else:
                 files.append(t[-2])
         elif pieces == 3 and t[-2] == '=>':
             # missing library
-            print "\n\nWARNING: SKIPPING MISSING LIBRARY: [%s]\n\n" % \
-                       (line.strip())
+            print("\n\nWARNING: SKIPPING MISSING LIBRARY: [%s]\n\n" % \
+                       (line.strip()))
         else:
-            print "Unrecognized ldd line: [%s]" % line.strip()
+            print("Unrecognized ldd line: [%s]" % line.strip())
             okay = False
-    files = map(os.path.abspath,files)
+    files = list(map(os.path.abspath,files))
     return (okay, files)
 
 def _file_to_avoid(env,x):
@@ -92,7 +92,7 @@ def copy_system_libraries(env, kitdir, files, extra_ld_library_paths=[]):
                                               osenv=osenv) 
               for line in lines:
                   line = line.rstrip()
-                  print "\t%s"%(line)
+                  print("\t%s"%(line))
               if retval != 0: # error handling
                   if len(lines) >= 1:
                       if lines[0].find("not a dynamic executable") != -1:

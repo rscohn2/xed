@@ -390,7 +390,7 @@ class nonterminal_dict_t(object):
       self.nonterminal_info = {} 
 
    def keys(self):
-      return self.nonterminal_info.keys()
+      return list(self.nonterminal_info.keys())
    
    def add_graph_node(self, nt_name, node_id):
       """set the node id in the graph node"""
@@ -532,7 +532,7 @@ class bits_list_t(object):
 
    def just_bits(self):
       """ return a string of just the bits"""
-      s = map(lambda(x): x.just_bits(), self.bits)
+      s = [x.just_bits() for x in self.bits]
       o  = []
       i = 0
       for b in s:
@@ -590,8 +590,8 @@ def read_dict_spec(fn):
     if not os.path.exists(fn):
       die("Could not read file: " + fn)
     lines = open(fn,'r').readlines()
-    lines = map(no_comments, lines)
-    lines = filter(blank_line, lines)
+    lines = list(map(no_comments, lines))
+    lines = list(filter(blank_line, lines))
     for line in lines:
         wrds = line.split()
         key = wrds[0]
@@ -614,8 +614,8 @@ def read_state_spec(fn):
    if not os.path.exists(fn):
       die("Could not read file: " + fn)
    lines = open(fn,'r').readlines()
-   lines = map(no_comments, lines)
-   lines = filter(blank_line, lines)
+   lines = list(map(no_comments, lines))
+   lines = list(filter(blank_line, lines))
    for line in lines:
       ## remove comment lines
       #line = no_comments(line)
@@ -640,7 +640,7 @@ def compute_state_space(state_dict):
    # a dictionary of the values of a each operand_decider
    state_values = {}
    
-   for k in state_dict.keys():
+   for k in list(state_dict.keys()):
       vals = state_dict[k]
       for wrd in vals.list_of_str:
          m = restriction_pattern.search(wrd)
@@ -708,7 +708,7 @@ class prebinding_t(object):
    def __str__(self):
       s = []
       s.append(self.field_name)
-      s.extend(map(str,self.bit_info_list))
+      s.extend(list(map(str,self.bit_info_list)))
       return ', '.join(s)
 
 def get_btype(b):
@@ -832,7 +832,7 @@ def parse_opcode_spec(agi, line, state_dict):
        # remove the underscores now that we know it is a pattern
        w = w.replace('_','')
        # some binary value or letter
-       bits = map(str,list(w))
+       bits = list(map(str,list(w)))
        all_bits.extend(bits)
        for b in list(bits):
           btype = get_btype(b)
@@ -847,7 +847,7 @@ def parse_opcode_spec(agi, line, state_dict):
 
 def add_str(s, name, value):
    t =  s + '%-15s' % (name) + ': '
-   if type(value) == types.ListType:
+   if type(value) == list:
       for q in value:
          t += q + ' ' 
    else:
@@ -1209,8 +1209,8 @@ class instruction_info_t(partitionable_info_t):
       accept(r'[{]', lines)
       reached_closing_bracket = False
       # FIXME add more error checking
-      structured_input_dict = dict(zip(structured_input_tags.keys(),
-                                       len(structured_input_tags)*[False]))
+      structured_input_dict = dict(list(zip(list(structured_input_tags.keys()),
+                                       len(structured_input_tags)*[False])))
       found_operands = False
       filling_extra = False
       while 1:
@@ -1326,15 +1326,15 @@ class instruction_info_t(partitionable_info_t):
                setattr(self,token,rest.strip())
                # die("Unhandled token in line: " + line)
          else:
-            print "NEXT FEW LINES: "
+            print("NEXT FEW LINES: ")
             for x in lines[0:20]:
-               print "INPUT LINE: %s" % (x.strip())
+               print("INPUT LINE: %s" % (x.strip()))
             die("Missing colon in line: " + line)
 
       if reached_closing_bracket:
          if found_operands == False:
             die("Did not find operands for " + self.iclass)
-         for k in  structured_input_dict.keys():
+         for k in  list(structured_input_dict.keys()):
             if structured_input_dict[k] == False:
                if structured_input_tags[k]:
                   die("Required token missing: "+ k)
@@ -1419,7 +1419,7 @@ class instruction_info_t(partitionable_info_t):
           return ''.join(s)
       if self.prebindings:
          s.append('prebindings: \n\t' + 
-                  '\n\t'.join(map(str,self.prebindings.values())) + '\n')
+                  '\n\t'.join(map(str,list(self.prebindings.values()))) + '\n')
       for op in self.operands:
          s.append(pad)
          s.append("   ")
@@ -1640,7 +1640,7 @@ def remove_overridden_versions(parser):
          d[ii.iclass] = [ii]
 
    iis = []
-   for ilist in d.values():
+   for ilist in list(d.values()):
       iis.extend(ilist)
    parser.instructions = iis
    return parser
@@ -1916,11 +1916,11 @@ class graph_node(object):
    def value_test_node(self):
       """returns (value_test, value_to_test) """
       if self.is_operand_decider():
-         if len(self.next) == 2:
+         if len(self.__next__) == 2:
             found_value = False
             found_other = False
             value = None
-            for k,nxt in self.next.iteritems():
+            for k,nxt in self.next.items():
                if k == 'other' and found_other==False:
                   found_other = True
                elif found_value == False:
@@ -1934,7 +1934,7 @@ class graph_node(object):
       return (False, None)
      
    def leaf(self):
-      if len(self.next) == 0:
+      if len(self.__next__) == 0:
          return True
       return False
      
@@ -1957,7 +1957,7 @@ class graph_node(object):
          s += ' OPERAND-DECIDER:' + str(self.operand_decider)
       s += eol
       # only print instructions for leaf nodes
-      if len(self.next) == 0:
+      if len(self.__next__) == 0:
          s += pad + 'insts: ' + eol
          for ii in self.instructions:
             s += ii.dump_str(pad + '    ') + eol
@@ -2036,7 +2036,7 @@ def partition_by_required_values(options, instructions, bitpos, token,
                if osf.ctype.find('enum') == -1:
                   nvalues = 1 << int(osf.bitwidth)
                   #all_values_for_this_od = map(str,range(0,nvalues))
-                  all_values_for_this_od = range(0,nvalues)
+                  all_values_for_this_od = list(range(0,nvalues))
                   if vod():
                      msge("Synthesized values for %s: %s" % 
                           ( operand_decider.token,
@@ -2050,8 +2050,7 @@ def partition_by_required_values(options, instructions, bitpos, token,
                  ", ".join(map(str,all_values_for_this_od)))
          for a in all_values_for_this_od:
             all_values[a]=True
-         trimmed_vals = filter(lambda (x): x != operand_decider.requirement, 
-                               all_values_for_this_od)
+         trimmed_vals = [x for x in all_values_for_this_od if x != operand_decider.requirement]
          if len(trimmed_vals) == 0:
             die("We had a not-equals requirement but did" +
                 " not have any other values to bin against.")
@@ -2066,7 +2065,7 @@ def partition_by_required_values(options, instructions, bitpos, token,
             d[ other ].append((trimmed_vals,ii) )
 
    #msge("RETURNING FROM PARTITION: %s" % ( str(d.keys())))
-   return (d, all_values.keys() )
+   return (d, list(all_values.keys()) )
       
 
 def all_same_operand_decider(ilist,bitpos):
@@ -2290,7 +2289,7 @@ def at_end_of_instructions(ilist, bitpos):
    done = False
    notdone = False
    for ii in ilist:
-      if isinstance(ii,types.TupleType):
+      if isinstance(ii,tuple):
          die("Bad tuple where instruction expected: "+ str(ii))
       if bitpos >= len(ii.ipattern.bits):
          done = True
@@ -2575,10 +2574,10 @@ def build_sub_graph(common, graph, bitpos, skipped_bits):
          need_to_splatter = False
          previous_trimmed_values = None
          scalar_values = set()
-         for k,partition in node_partition.iteritems():
+         for k,partition in node_partition.items():
             if vpart():
                msge("SPATTER SCAN: Operand decider partition key= " + str(k))
-            if isinstance(partition[0],types.TupleType):
+            if isinstance(partition[0],tuple):
                for trimmed_values, ii in  partition:
                   s = set(trimmed_values)
                   if previous_trimmed_values == None:
@@ -2608,8 +2607,8 @@ def build_sub_graph(common, graph, bitpos, skipped_bits):
          if need_to_splatter:
             msge("Splattering because of conflicting 'other' conditions")
             new_node_partition = {}
-            for k,partition in node_partition.iteritems():
-               if isinstance(partition[0],types.TupleType):
+            for k,partition in node_partition.items():
+               if isinstance(partition[0],tuple):
                   for trimmed_values, ii in  partition:
                      for tv in trimmed_values:
                         try:
@@ -2627,12 +2626,12 @@ def build_sub_graph(common, graph, bitpos, skipped_bits):
          
          # set up the next nodes and give them their instructions.
 
-         for k,partition in node_partition.iteritems():
+         for k,partition in node_partition.items():
             if vpart():
                msge("PARTITIION: Operand decider partition key= " + str(k))
             next_node = new_node(graph,k,bitpos)
 
-            if isinstance(partition[0],types.TupleType):
+            if isinstance(partition[0],tuple):
                # store the key choices in the node for later graph building
                for trimmed_values, ii in  partition:
                   next_node.trimmed_values = trimmed_values
@@ -2643,7 +2642,7 @@ def build_sub_graph(common, graph, bitpos, skipped_bits):
                next_node.instructions.extend(partition)
 
          # build the subgraphs for the children
-         for child in graph.next.itervalues():
+         for child in graph.next.values():
             # RECUR for operand-decider
             build_sub_graph(common, child, bitpos, 0) 
          return
@@ -2841,7 +2840,7 @@ def build_graph(common, parser_output, operand_storage_dict):
 def print_graph(options, node, pad =''):
    s = node.dump_str(pad)
    msge(s)
-   for k,nxt in node.next.iteritems():  # PRINTING
+   for k,nxt in node.next.items():  # PRINTING
       s = pad + ' key: ' + str(k)
       msge(s)
       print_graph(options, nxt, pad + '        ')
@@ -2882,8 +2881,8 @@ uninteresting_operand_types_list = ['imm_const', 'reg', 'relbr', 'ptr', 'error',
                                     'flag', 'agen']
 
 uninteresting_operand_types_dict = \
-    dict(zip(uninteresting_operand_types_list,
-             [True]*len(uninteresting_operand_types_list)))
+    dict(list(zip(uninteresting_operand_types_list,
+             [True]*len(uninteresting_operand_types_list))))
 
 
 def decorate_operand(options,opnd,ii):
@@ -2897,7 +2896,7 @@ def decorate_operand(options,opnd,ii):
    elif opnd.type == 'imm':
       if ii.prebindings and opnd.name in ii.prebindings:
          opnd.bit_positions = \
-             map(lambda(x): x.pbit, ii.prebindings[opnd.name].bit_info_list)
+             [x.pbit for x in ii.prebindings[opnd.name].bit_info_list]
       else:
          collect_immediate_operand_bit_positions(options,opnd, ii)
       opnd.rightmost_bitpos = max(opnd.bit_positions)
@@ -2994,13 +2993,13 @@ def collect_tree_depth(node, depths={}, depth=0):
    """Collect instruction field data for enumerations"""
 
    cdepth = depth + 1
-   if len(node.next) == 0:
+   if len(node.__next__) == 0:
       try:
          depths[cdepth] += 1
       except:
          depths[cdepth] = 1
    else:
-      for child in node.next.itervalues():
+      for child in node.next.values():
          collect_tree_depth(child, depths, cdepth) 
    return depths
 
@@ -3011,7 +3010,7 @@ def collect_ifield(options, node, field, master_list):
          s = getattr(ii,field)
          if s not in master_list:
             master_list.append(s)
-   for child in node.next.itervalues():
+   for child in node.next.values():
       # FIXME: sloppy return value handling???
       collect_ifield(options,child, field,master_list) 
    return master_list
@@ -3025,7 +3024,7 @@ def collect_ofield(options, node, field, master_list):
             s = getattr(opnd,field)
             if s != None and s not in master_list:
                master_list[s] = True
-   for child in node.next.itervalues():
+   for child in node.next.values():
       collect_ofield(options,child, field,master_list) 
 
 def collect_ofield_operand_type(options, node, field, master_list):
@@ -3037,7 +3036,7 @@ def collect_ofield_operand_type(options, node, field, master_list):
                #s = getattr(opnd,field)
                if s != None and s not in master_list:
                    master_list[s] = True
-   for child in node.next.itervalues():
+   for child in node.next.values():
        collect_ofield_operand_type(options,child, field,master_list) 
 
       
@@ -3050,7 +3049,7 @@ def collect_ofield_name_type(options, node, field, master_list):
             type = getattr(opnd,'type')
             if s not in master_list:
                master_list[s]=type
-   for child in node.next.itervalues():
+   for child in node.next.values():
       collect_ofield_name_type(options,child, field,master_list) 
 
          
@@ -3069,13 +3068,13 @@ def collect_attributes(options, node,  master_list):
    for ii in node.instructions:
          if field_check(ii, 'attributes'):
             s = getattr(ii,'attributes')
-            if isinstance(s, types.ListType):
+            if isinstance(s, list):
                for x in s:
                   if x not in master_list:
                      master_list.append(x)
             elif s != None and s not in master_list:
                master_list.append(s)
-   for nxt in node.next.itervalues():
+   for nxt in node.next.values():
       collect_attributes(options,nxt, master_list) 
 
 
@@ -3092,7 +3091,7 @@ def write_instruction_data(odir,idata_dict):
       open_mode = "a"
    idata_files += 1
    f = open(os.path.join(odir,fn),open_mode)
-   kys = idata_dict.keys()
+   kys = list(idata_dict.keys())
    kys.sort()
    s = "#%-19s %-15s %-15s %-30s %-20s %s\n" % ("iclass", 
                                                 "extension", 
@@ -3140,7 +3139,7 @@ def write_attributes_table(agi, odir):
    if vattr():
        msgb("Unique attributes", len(agi.attributes_dict))
    t = []
-   for s,v in agi.attributes_dict.iteritems():
+   for s,v in agi.attributes_dict.items():
        t.append((v,s))
    t.sort(cmp=attr_dict_cmp)
    if vattr():
@@ -3339,7 +3338,7 @@ def repmap_emit_code(agi, plist, kind, hash_fn):
         array_limit = 2*(mx+1)  # make room for input key validation
     fo.add_code('const xed_uint16_t lu_table[{}] = {{'.format(array_limit))
     
-    hashes = t.keys()
+    hashes = list(t.keys())
     hashes.sort()
 
     # fill in the rows of the array
@@ -3404,7 +3403,7 @@ def emit_iclass_rep_ops(agi):
         o.no_rep_indx  = agi.iclasses_enum_order.index(o.no_rep_iclass)
 
     # make a list of keys for the norep-to-whatever hash functions
-    no_rep_keys = uniqueify(map(lambda x:x.no_rep_indx, repobjs))
+    no_rep_keys = uniqueify([x.no_rep_indx for x in repobjs])
     no_rep_keys.sort()
         
     msge("NOREP KEYS: {}".format(str(no_rep_keys)))
@@ -3461,11 +3460,11 @@ def emit_iclass_enum_info(agi):
    """Emit major enumerations based on stuff we collected from the
    graph."""
    msge('emit_iclass_enum_info')
-   iclasses = map(lambda (s): s.upper(),agi.iclasses)
+   iclasses = [s.upper() for s in agi.iclasses]
    add_invalid(iclasses)
 
    # 2...9  # omitting NOP1
-   iclasses.extend(map(lambda(x): "NOP%s" % (str(x)), range(2,10))) 
+   iclasses.extend(["NOP%s" % (str(x)) for x in range(2,10)]) 
 
    iclasses = uniqueify(iclasses)
    # sort each to make sure INVALID is first
@@ -3519,20 +3518,19 @@ def emit_enum_info(agi):
    graph."""
    msge('emit_enum_info')
    # make everything uppercase
-   nonterminals = map(lambda (s): s.upper(), agi.nonterminal_dict.keys())
-   operand_types = map(lambda (s): s.upper(),agi.operand_types.keys())
-   operand_widths = map(lambda (s): s.upper(),agi.operand_widths.keys())
+   nonterminals = [s.upper() for s in list(agi.nonterminal_dict.keys())]
+   operand_types = [s.upper() for s in list(agi.operand_types.keys())]
+   operand_widths = [s.upper() for s in list(agi.operand_widths.keys())]
 
-   operand_names = map(lambda (s): s.upper(), 
-                       agi.operand_storage.get_operands().keys())
+   operand_names = [s.upper() for s in list(agi.operand_storage.get_operands().keys())]
    msge("OPERAND-NAMES " + " ".join(operand_names))
 
    
-   extensions = map(lambda (s): s.upper(),agi.extensions)
-   categories = map(lambda (s): s.upper(),agi.categories)
-   attributes = map(lambda (s): s.upper(),agi.attributes)
+   extensions = [s.upper() for s in agi.extensions]
+   categories = [s.upper() for s in agi.categories]
+   attributes = [s.upper() for s in agi.attributes]
    # remove the things with equals signs
-   attributes = filter(lambda (s): s.find('=') == -1 ,attributes)
+   attributes = [s for s in attributes if s.find('=') == -1]
    
 
    # add an invalid entry to each in the first spot if it is not
@@ -3559,7 +3557,7 @@ def emit_enum_info(agi):
    #nt_enum_numeric_value -> nt_name
    xed3_nt_enum_val_map = {}
    upper_dict = {}
-   for nt_name in agi.nonterminal_dict.keys():
+   for nt_name in list(agi.nonterminal_dict.keys()):
        nt_name_upper = nt_name.upper()
        upper_dict[nt_name_upper] = nt_name 
    for i,upper_nt in enumerate(nonterminals):
@@ -3767,11 +3765,11 @@ def compute_iforms(options, gi, operand_storage_dict):
 
    # printing various ways
    if viform():
-      for iform,iilist in iforms.iteritems():
+      for iform,iilist in iforms.items():
          msge("IFORM %s: %s" % (iform,
-                                " ".join(map(lambda(x): x.iclass, iilist))))
+                                " ".join([x.iclass for x in iilist])))
 
-      for iclass,iformlist in ii_iforms.iteritems():
+      for iclass,iformlist in ii_iforms.items():
          str_iforms = {}
          dups = []
          for iform in iformlist:
@@ -3781,7 +3779,7 @@ def compute_iforms(options, gi, operand_storage_dict):
                str_iforms[iform]=True
 
 
-         msge("II_IFORM %s: %s" % (iclass, " ".join(str_iforms.keys())))
+         msge("II_IFORM %s: %s" % (iclass, " ".join(list(str_iforms.keys()))))
          if len(dups)!=0:
             msge("\tDUPS: %s: %s" % (iclass," ".join(dups)))
 
@@ -3951,7 +3949,7 @@ def make_attributes_equation(agi,ii):
    if field_check(ii,'attributes'):
       if ii.attributes:
          trimmed_attributes = \
-             filter(lambda (s): s.find('=') == -1 ,ii.attributes)
+             [s for s in ii.attributes if s.find('=') == -1]
 
          if len(trimmed_attributes) > 0:
              trimmed_attributes.sort()
@@ -4046,7 +4044,7 @@ def find_common_operand_sequences(agi):
 
     msgb("Unique Operand Sequences", str(next_oid_seqeuence))
     n = 0
-    for k in global_oid_sequences.keys():
+    for k in list(global_oid_sequences.keys()):
         n = n + len(k.lst)
     global_max_operand_sequences = n
     msgb("Number of required operand sequence pointers", 
@@ -4139,7 +4137,7 @@ def code_gen_instruction(agi, options, ii, state_dict, fo,
    # emit attributes
    attributes_index = make_attributes_equation(agi,ii)
 
-   operand_names = map(lambda(x): x.name.upper(), ii.operands)
+   operand_names = [x.name.upper() for x in ii.operands]
 
    # THE NEW WAY - DATA INITIALIZATION -- see include/private/xed-inst-defs.h
    cpl = '3'
@@ -4363,19 +4361,19 @@ def compress_iform_strings(values):
         # store the base,operand_sig pair 
         h[int(index)] = (b,o)
         
-    print "XZ: NTUPLES {} BASES {}  OPERAND_SIGS {}".format(len(values),
+    print("XZ: NTUPLES {} BASES {}  OPERAND_SIGS {}".format(len(values),
                                                             len(bases),
-                                                            len(operand_sigs))
+                                                            len(operand_sigs)))
 
-    if len(h) != (max(map(lambda x: int(x), h.keys()))+1):
-        print "PROBLEM IN h LENGTH"
+    if len(h) != (max([int(x) for x in list(h.keys())])+1):
+        print("PROBLEM IN h LENGTH")
     # make an numerically indexed version of the bases table
     bi = {}
-    for k,v in bases.iteritems():
+    for k,v in bases.items():
         bi[v] = k
     # make an numerically indexed version of the operand_sig table
     oi = {}
-    for k,v in operand_sigs.iteritems():
+    for k,v in operand_sigs.items():
         oi[v] = k
 
     f = sys.stdout
@@ -4452,14 +4450,14 @@ def collect_and_emit_iforms(agi,options):
    # number them from zero, per iclass
    vtuples = [('INVALID', 0, 'INVALID') ]
    imax = {} # maximum number of iforms per iclass
-   for ic,ol in iform_dict.iteritems():
+   for ic,ol in iform_dict.items():
       #msge("XZ BEFORE " + ic + " --- " + str(ol))
       ol = uniqueify(ol)
       #msge("XZ AFTER  " + ic + " --- " + str(ol))
       sz= len(ol)
-      vsub = zip([ic.upper()]*sz,   # the iclass
-                 range(0,sz),       # number the iforms
-                 ol)                # the list of iform names
+      vsub = list(zip([ic.upper()]*sz,   # the iclass
+                 list(range(0,sz)),       # number the iforms
+                 ol))                # the list of iform names
       imax[ic] = sz
       vtuples.extend(vsub)
 
@@ -4497,7 +4495,7 @@ def collect_and_emit_iforms(agi,options):
 
    #msge("NTUPLES %s" % (str(ntuples)))
    # rip off first two fields of vtuples
-   vtuples = map(lambda(x): x[2:], ntuples)
+   vtuples = [x[2:] for x in ntuples]
 
    #for t in vtuples:
    #   msge("TUPLE " + str(t))
@@ -4505,7 +4503,7 @@ def collect_and_emit_iforms(agi,options):
    # compress_iform_strings(vtuples)
 
    # rip off first two fields of vtuples
-   first_last_tuples = map(lambda(x): x[2:], first_last_tuples)
+   first_last_tuples = [x[2:] for x in first_last_tuples]
    generate_iform_first_last_enum(agi,options,first_last_tuples)   
 
    #emit  imax in global iclass order for data-initialization!
@@ -4607,14 +4605,14 @@ def renumber_nodes_sub(options,node):
    #msge("RENUMBER NODE %d becomes %d" % ( node.id, renum_node_id))
    node.id = renum_node_id
    # recur
-   for nxt in node.next.itervalues():
+   for nxt in node.next.values():
       node_id = renumber_nodes_sub(options,nxt)
 
 
 
 def merge_child_nodes(options,node):
    """Merge the children and grandchildren of this node."""
-   candidates = len(node.next)
+   candidates = len(node.__next__)
    if vmerge():
       msge(str(candidates) + " merge candidate")
    # merge tokens??
@@ -4622,8 +4620,8 @@ def merge_child_nodes(options,node):
    # bit_pos* becomes a bigger range
    # more "next" nodes.
    tnode = {}
-   for k,child in node.next.iteritems():      # children  # MERGING 
-      for j in child.next.keys():  # grandchildren
+   for k,child in node.next.items():      # children  # MERGING 
+      for j in list(child.next.keys()):  # grandchildren
          bigkey = str(k) + str(j)
          if vmerge():
             msge("Bigkey= %s"  % (bigkey))
@@ -4652,13 +4650,12 @@ def merge_nodes(options,node):
       merging = True
       while merging:
          all_match = True
-         decider_bits = map(lambda(k): node.next[k].decider_bits , 
-                            node.next.keys())
+         decider_bits = [node.next[k].decider_bits for k in list(node.next.keys())]
          if not all_the_same(decider_bits):
             if vmerge():
                msge("Not merging because unequal numbers of decider" +
                     " bits follow:" + str(decider_bits))
-               for nxt in node.next.itervalues():
+               for nxt in node.next.values():
                   msge("\tChildNode:\n" +nxt.dump_str('\t\t'))
             all_match = False
             break
@@ -4694,7 +4691,7 @@ def merge_nodes(options,node):
          
             
          # look at all the next nodes
-         for child in node.next.itervalues():
+         for child in node.next.values():
             if child.back_split_pos != None:
                if vmerge():
                   msge("Not merging because a child is back-split")
@@ -4727,7 +4724,7 @@ def merge_nodes(options,node):
             merging = False
 
    # recur
-   for child in node.next.itervalues():
+   for child in node.next.values():
       merge_nodes(options,child)
 
 def optimize_graph(options, node):
@@ -4745,7 +4742,7 @@ def optimize_graph(options, node):
 def epsilon_label_graph(options, node):
    node.otherwise_ok  = True
    # recur
-   for child in node.next.itervalues():
+   for child in node.next.values():
       epsilon_label_graph(options,child)
    
 ############################################################################
@@ -4819,8 +4816,8 @@ def code_gen_extract_sub_runs_old(sub_runs, vname, start_clean = True):
    s = ''
    
    for (bit,count,position_str, nonterminal_addr) in sub_runs:
-      print "PROCESSING SUBRUN (%s, %d, %s, %s)" % (
-          bit, count ,position_str, nonterminal_addr)
+      print("PROCESSING SUBRUN (%s, %d, %s, %s)" % (
+          bit, count ,position_str, nonterminal_addr))
       # control whether or not we do an assignment or and |= in to our
       # dest var c.
       if first:
@@ -4831,7 +4828,7 @@ def code_gen_extract_sub_runs_old(sub_runs, vname, start_clean = True):
          # must shift last "c" by the amount we are or-ing in on this iteration
          t += "%s=%s<<%s%s" % (vname, vname, str(count), eol)
          s += t
-         print "ADDING SHIFT OF PREV STUFF: %s" % t
+         print("ADDING SHIFT OF PREV STUFF: %s" % t)
          
       sindex =  str(position_str)
       if nonterminal_addr != '':
@@ -4853,7 +4850,7 @@ def print_bit_groups(bit_groups, s=''):
 def emit_function_headers(fp, fo_dict):
    """For each function in the fo_dict dictionary, emit the function
    prototype to the fp file emitter object."""
-   for fname in fo_dict.keys():
+   for fname in list(fo_dict.keys()):
       fo = fo_dict[fname]
       fp.write(fo.emit_header())
       
@@ -5222,9 +5219,9 @@ class all_generator_info_t(object):
 
       
    def add_file_name(self,fn,header=False):
-      if type(fn) == types.StringType:
+      if type(fn) == bytes:
           fns = [fn]
-      elif type(fn) == types.ListType:
+      elif type(fn) == list:
           fns = fn
       else:
           die("Need string or list")
@@ -5352,7 +5349,7 @@ class all_generator_info_t(object):
       # remember the c & h file names
       self.add_file_name(m.src_full_file_name)
       self.add_file_name(m.hdr_full_file_name,header=True)
-      all_values = map(lambda x: x.name ,m.tuples)
+      all_values = [x.name for x in m.tuples]
       return all_values
       
       
@@ -5369,7 +5366,7 @@ class all_generator_info_t(object):
          
    def extend_operand_names_with_input_states(self):
       type ='xed_uint32_t'
-      for operand_decider in self.common.state_space.keys():
+      for operand_decider in list(self.common.state_space.keys()):
          #msge("STATESPACE: considering " + operand_decider)
          if operand_decider not in self.operand_names:
             self.operand_names[operand_decider] = type
@@ -5736,7 +5733,7 @@ def call_chipmodel(agi):
     files_created,chips,isaset = chipmodel.work(args)
     agi.all_enums['xed_chip_enum_t'] = chips
     agi.all_enums['xed_isa_set_enum_t'] = isaset
-    print "Created files: %s" % (" ".join(files_created))
+    print("Created files: %s" % (" ".join(files_created)))
     for f in files_created:
         agi.add_file_name(f,is_header(f))
 
@@ -5753,8 +5750,8 @@ def call_chipmodel(agi):
 ################################################
 def read_cpuid_mappings(fn):
     lines = open(fn,'r').readlines()
-    lines = map(no_comments, lines)
-    lines = filter(blank_line, lines)
+    lines = list(map(no_comments, lines))
+    lines = list(filter(blank_line, lines))
     d = {} # isa-set to list of cpuid records
     for line in lines:
         wrds = line.split(':')
@@ -5773,7 +5770,7 @@ def make_cpuid_mappings(agi,mappings):
     
     # collect all unique list of cpuid bit names
     cpuid_bits = {}
-    for vlist in mappings.itervalues():
+    for vlist in mappings.values():
         for bit in vlist:
             if bit == 'N/A':
                 data = bitname = 'INVALID'
@@ -5833,7 +5830,7 @@ def make_cpuid_mappings(agi,mappings):
     fp.add_code('const xed_cpuid_bit_enum_t xed_isa_set_to_cpuid_mapping[][XED_MAX_CPUID_BITS_PER_ISA_SET] = {')
 
     for isaset in agi.all_enums['xed_isa_set_enum_t']:
-        print "ISASET: ", isaset
+        print("ISASET: ", isaset)
         x = 'XED_ISA_SET_' + isaset
         raw = n*['XED_CPUID_BIT_INVALID']
         if x in mappings:
@@ -5909,7 +5906,7 @@ def emit_reg_class_enum(options, regs_list):
             rclasses[fine_rclass]=True
 
    del rclasses['INVALID']
-   just_rclass_names = rclasses.keys()
+   just_rclass_names = list(rclasses.keys())
    # FIXME: would really prefer alphanumeric sort (low priority)
    just_rclass_names.sort() 
 
@@ -5991,7 +5988,7 @@ def gen_regs(options,agi):
    # remove comments and blank lines
    # regs_list is a list of reg_info_t's
    regs_list = refine_regs.refine_regs_input(lines)
-   regs = map(lambda x: x.name, regs_list)
+   regs = [x.name for x in regs_list]
    agi.all_enums['xed_reg_enum_t'] = regs
 
    (cfn, hfn) = emit_regs_enum(options, regs_list)
@@ -6062,7 +6059,7 @@ def refine_widths_input(lines):
    return widths_list
 
 def emit_widths_enum(options, widths_list):
-   just_width_names = map(lambda(x) : x.name, widths_list)
+   just_width_names = [x.name for x in widths_list]
    width_enum =  enum_txt_writer.enum_info_t(just_width_names,
                                              options.xeddir, options.gendir,
                                              'xed-operand-width',
@@ -6299,7 +6296,7 @@ def decorate_instructions_with_exception_types(agi):
 
 def emit_ctypes_enum(options, ctypes_dict):
    ctypes_dict['INVALID']=True
-   type_names = ctypes_dict.keys()
+   type_names = list(ctypes_dict.keys())
    type_names.sort(cmp=cmp_invalid)
    ctypes_enum =  enum_txt_writer.enum_info_t(type_names,
                                               options.xeddir, options.gendir,
@@ -6332,12 +6329,12 @@ def emit_ctypes_mapping(options, operand_ctype_map, operand_bits_map):
 
    ifo = function_object_t('xed_init_operand_ctypes', 'void')
 
-   for o,c in operand_ctype_map.iteritems():
+   for o,c in operand_ctype_map.items():
       ifo.add_code_eol(
           "xed_operand_ctype[XED_OPERAND_%s]=XED_OPERAND_CTYPE_%s" % (
               o.upper(),c.upper()))
 
-   for o,c in operand_bits_map.iteritems():
+   for o,c in operand_bits_map.items():
       ifo.add_code_eol("xed_operand_bits[XED_OPERAND_%s]=%s" % (o.upper(), c))
       
    cf.write("static xed_operand_ctype_enum_t"+
@@ -6364,13 +6361,13 @@ def gen_operand_storage_fields(options,agi):
    
    operand_fields = agi.operand_storage.get_operands()
    ctypes = {} #  ctypes -> True
-   for of in operand_fields.values():
+   for of in list(operand_fields.values()):
       ctypes[of.ctype]=True
 
 
    operand_ctype_map = {}
    operand_bits_map = {}
-   for of in operand_fields.itervalues():
+   for of in operand_fields.values():
       operand_ctype_map[of.name] = of.ctype
       operand_bits_map[of.name] = of.bitwidth
 

@@ -42,6 +42,7 @@ import ild_cdict
 import xed3_nt
 import actions
 import verbosity
+import imp
 
 
 op_bin_pattern = re.compile(r'[_10]{2,}$')
@@ -87,7 +88,7 @@ def _is_amd3dnow(agi):
 #mostly modrm-related
 def _get_nested_nts(agi):
     nested_nts = set()
-    for nt_name in agi.nonterminal_dict.keys():
+    for nt_name in list(agi.nonterminal_dict.keys()):
         g = agi.generator_dict[nt_name]
         ii = g.parser_output.instructions[0]
         if genutil.field_check(ii,'iclass'):
@@ -164,7 +165,7 @@ def gen_xed3(agi,ild_info,is_3dnow,ild_patterns,
     ild_codegen.dump_vv_map_lookup(agi,
                                    vv_lu,
                                    is_3dnow,
-                                   op_lu_map.values(),
+                                   list(op_lu_map.values()),
                                    h_fn='xed3-phash.h')
     #xed3_nt.work generates all the functions and lookup tables for
     #dynamic decoding
@@ -220,14 +221,14 @@ def work(agi):
     #Get dictionary with all legal values for all interesting operands
     all_state_space = ild_cdict.get_all_constraints_state_space(agi)
     _msg("ALL_STATE_SPACE:")
-    for k,v in all_state_space.items():
+    for k,v in list(all_state_space.items()):
             _msg("%s: %s"% (k,v))
 
     #Get widths for the operands
     all_ops_widths = ild_cdict.get_state_op_widths(agi, all_state_space)
 
     _msg("ALL_OPS_WIDTHS:")
-    for k,v in all_ops_widths.items():
+    for k,v in list(all_ops_widths.items()):
             _msg("%s: %s"% (k,v))
 
     #generate a list of pattern_t objects that describes the ISA.
@@ -239,7 +240,7 @@ def work(agi):
         if agi.common.options.gen_ild_storage:
             #dump the ild_storage_data.py file
             emit_gen_info_lookup(agi, ild_patterns, is_3dnow, debug)
-            reload(ild_storage_data)
+            imp.reload(ild_storage_data)
 
         #get ild_storage_t object - the main data structure for ILD
         #essentially a 2D dictionary:

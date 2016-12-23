@@ -61,12 +61,12 @@ class constant_table_t(object):
            return True
         return False
     def dump(self):
-        print "%s(%s)::" % (self.name, self.operand)
+        print("%s(%s)::" % (self.name, self.operand))
         for (v,p) in self.value_string_pairs:
-            if isinstance(p, types.StringType):
-                print "%s '%s'" % (hex(v),p)
+            if isinstance(p, bytes):
+                print("%s '%s'" % (hex(v),p))
             else:
-                print "%s  error" %(hex(v))
+                print("%s  error" %(hex(v)))
 
     def emit_init(self):
         lines = []
@@ -74,7 +74,7 @@ class constant_table_t(object):
         lines.append('static const char* %s[] = {' % (self.string_table_name))
 
         for (v,p) in self.value_string_pairs:
-            if isinstance(p, types.StringType):
+            if isinstance(p, bytes):
                 lines.append( '/*%s*/ "%s",' % (hex(v),p))
             else:
                 lines.append( '/*%s*/ 0, /* error */' % (hex(v)))
@@ -140,8 +140,8 @@ def work(lines,   xeddir = '.',   gendir = 'obj'):
        #    print l
        tables.append(y)
        
-   tables=filter(lambda(x): x.valid() , tables)
-   names=map(lambda(x): x.name , tables)
+   tables=[x for x in tables if x.valid()]
+   names=[x.name for x in tables]
 
    srcs = emit_convert_enum(['INVALID'] + names, xeddir, gendir)
    src_file_name = 'xed-convert-table-init.c'
@@ -159,7 +159,7 @@ def work(lines,   xeddir = '.',   gendir = 'obj'):
    
    for t in tables:
        l = t.emit_init()
-       l = map(lambda(x): x+'\n', l)
+       l = [x+'\n' for x in l]
        xfe.writelines(l)
    fo = codegen.function_object_t('xed_init_convert_tables', 'void')
    
@@ -188,7 +188,7 @@ def work(lines,   xeddir = '.',   gendir = 'obj'):
    hdr.append("   unsigned int limit;\n")
    hdr.append("} xed_convert_table_t;")
    hdr.append("extern xed_convert_table_t xed_convert_table[XED_OPERAND_CONVERT_LAST];")
-   hfe.writelines(map(lambda(x): x+'\n', hdr))
+   hfe.writelines([x+'\n' for x in hdr])
    hfe.close()
 
    srcs.append(hfe.full_file_name)
@@ -199,4 +199,4 @@ if __name__ == '__main__':
    import sys
    lines = file(sys.argv[1]).readlines()
    srcs = work(lines,xeddir='.',gendir='obj')
-   print "WROTE: ", "\n\t".join(srcs)
+   print("WROTE: ", "\n\t".join(srcs))

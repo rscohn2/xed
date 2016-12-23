@@ -61,7 +61,7 @@ def handle_exception_and_die(e):
             sys.stderr.write('EXITING\n')
             sys.exit(e.value)
     else:
-        print str(e)
+        print(str(e))
         sys.exit(1)
 
 def cdie(s):
@@ -444,10 +444,10 @@ def strip_file(env,fn,options=''):
        cdie("Could not strip " + fne)
 
 def src_dir_join(env, lst):
-    return map(lambda x: mbuild.join(env['src_dir'],'src',x), lst)
+    return [mbuild.join(env['src_dir'],'src',x) for x in lst]
 
 def build_dir_join(env, lst):
-    return map(lambda x: mbuild.join(env['build_dir'],x), lst)
+    return [mbuild.join(env['build_dir'],x) for x in lst]
 
 def make_lib_dll(env,base):
     """Return the static or link lib and shared-lib name.  For a given
@@ -518,11 +518,11 @@ def get_arch(env):
 
 def dump_lines(s,lines):
    if lines:
-      print "========"
-      print s + ":"
+      print("========")
+      print(s + ":")
       for line in lines:
-         print line.strip()
-      print "========"
+         print(line.strip())
+      print("========")
 
 
 def prep(env):

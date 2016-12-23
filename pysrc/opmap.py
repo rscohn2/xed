@@ -48,8 +48,8 @@ class opmap_t(object):
         self.emit_decoder_code()
         self.emit_encoder_code()
     def dump(self):
-        print self.index_name, " DECODER OUTPUT: ", self.decode_output
-        print self.index_name, " ENCODER OUTPUT: ", self.encode_output
+        print(self.index_name, " DECODER OUTPUT: ", self.decode_output)
+        print(self.index_name, " ENCODER OUTPUT: ", self.encode_output)
         
     def number_fields(self):
         self.fields.reverse()
@@ -183,10 +183,10 @@ class parse_opmap_t(object):
                 self.read_line(line)
                 
     def dump(self):
-        for g,v in self.groups.iteritems():
-            print g, ":  "
+        for g,v in self.groups.items():
+            print(g, ":  ")
             v.dump()
-            print "\n\n"
+            print("\n\n")
 
 if __name__ == "__main__":
     o = opmap_t('regidx1')

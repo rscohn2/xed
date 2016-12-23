@@ -215,7 +215,7 @@ class enumer_t(object):
         full_header_file_name = mbuild.join(gendir,self.hfn)
         self.hf = codegen.file_emitter_t(gendir, self.hfn,
                                          namespace=namespace)
-        if type(self.extra_header) == types.ListType:
+        if type(self.extra_header) == list:
             for hdr in self.extra_header:
                 self.hf.add_header(hdr)
         elif self.extra_header:
@@ -271,19 +271,19 @@ class enumer_t(object):
        happens with the LAST element). Return True if it dense and
        zero based. """
        if self.debug:
-          print "SCAN FOR DENSE"
+          print("SCAN FOR DENSE")
        b = 0
        n = 0
        for v in vals:
           if self.debug:
-             print "\tTESTING [%s]->[%s]" % (v.name, str(v.value))
+             print("\tTESTING [%s]->[%s]" % (v.name, str(v.value)))
           if v.value == None:
              b = b + 1
              n = n + 1
              continue
           (is_number,ov) = self._make_number(v.value)
           if self.debug:
-             print "\t\t isnum=%s %s" % ( str(is_number), str(ov))
+             print("\t\t isnum=%s %s" % ( str(is_number), str(ov)))
           if is_number and ov == b:
              b = b + 1
              n = n + 1
@@ -292,15 +292,15 @@ class enumer_t(object):
           # but we must not put this value in the value-2-string
           # table. It must be in a separate string2value table.
           #print "\t\t [%s]" % ( str(vals[0:n]))
-          previous_values = map(lambda(x): x.name, vals[0:n])
+          previous_values = [x.name for x in vals[0:n]]
           if self.debug:
-             print "\t\t [%s]" % ( str(previous_values))
+             print("\t\t [%s]" % ( str(previous_values)))
           if v.value in previous_values:
              v.duplicate = True
              n = n + 1
              continue
           if self.debug:
-             print "\t\t Not in previous values"
+             print("\t\t Not in previous values")
           return False
        return True
     def _unique(self, vals):
@@ -632,7 +632,7 @@ std::istream& operator>>(std::istream& i, %(type)s& v) {
     
 
 def _test_enumer():
-    values = map(enumer_value_t, ['aaa','bbb','ccc'])
+    values = list(map(enumer_value_t, ['aaa','bbb','ccc']))
     e = enumer_t("test_type_t", "TEST_TYPE_", values,
                  "enumer-test.cpp", "enumer-test.H", ".",
                  namespace = "XED",

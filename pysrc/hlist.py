@@ -33,7 +33,7 @@ class hlist_t(object):
             h = h << 1
         return h
     def __str__(self):
-        s = ",".join(map(lambda(x):str(x),self.lst))
+        s = ",".join([str(x) for x in self.lst])
         return s
 
 
@@ -43,17 +43,17 @@ def test_hlist():
     c = hlist_t([1,3])
     
     if a == b:
-        print 'a==b'
+        print('a==b')
     if a == c:
-        print 'a==c'
+        print('a==c')
         
     d = {}
 
     d[a] = 1
     d[b] = 2
     d[c] = 3
-    for k in d.keys():
-        print str(k)
+    for k in list(d.keys()):
+        print(str(k))
 
 if __name__ == '__main__':
     test_hlist()

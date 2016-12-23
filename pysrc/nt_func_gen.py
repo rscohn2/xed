@@ -240,9 +240,9 @@ class nt_function_gen_t(object):
                 nt.default_action = actions.gen_return_action('')
 
     def gen_nt_functions(self):
-        nonterminals = (self.nonterminals.values() + 
-                       self.decoder_nonterminals.values() +  
-                       self.decoder_ntlufs.values())
+        nonterminals = (list(self.nonterminals.values()) + 
+                       list(self.decoder_nonterminals.values()) +  
+                       list(self.decoder_ntlufs.values()))
         
         for nt in nonterminals:
             if nt.name in _complicated_nt:
@@ -282,8 +282,8 @@ class nt_function_gen_t(object):
         
         #we do not need to the PSEUDO regs since 
         #they are not in use by the encoder
-        tmp = filter(lambda x: not x.in_comment('PSEUDO'), reg_list_enumer_vals)
-        regs = map(lambda x: x.name, tmp)
+        tmp = [x for x in reg_list_enumer_vals if not x.in_comment('PSEUDO')]
+        regs = [x.name for x in tmp]
 
         
         #put XED_REG_INVLAID in the beginning
@@ -292,7 +292,7 @@ class nt_function_gen_t(object):
         ordered_regs.extend(regs)
         
         #add XEG_REG_ prefix
-        full_reg_name = map(lambda x: 'XED_REG_' + x, ordered_regs)
+        full_reg_name = ['XED_REG_' + x for x in ordered_regs]
         
         self._check_duplications(full_reg_name)
         reg2int = {}
@@ -342,7 +342,7 @@ class nt_function_gen_t(object):
                     pass
                 else:
                     bits = self.storage_fields[field].bitwidth
-                    op_space[field] = range(2**bits)
+                    op_space[field] = list(range(2**bits))
                     op_width[field] = bits 
         
         # adding artificial operands 

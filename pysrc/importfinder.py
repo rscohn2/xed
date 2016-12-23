@@ -30,7 +30,7 @@ def _get_modules(fn):
     finder = modulefinder.ModuleFinder()
     finder.run_script(fn)
     all = []
-    for m in finder.modules.itervalues():
+    for m in finder.modules.values():
         if not isinstance(m, modulefinder.Module):
             continue
         if not m.__file__:
@@ -65,4 +65,4 @@ def find(root_module):
 
 if __name__ == "__main__":
     sys.path =  [sys.argv[2]] + sys.path
-    print find(os.path.join(sys.argv[2],sys.argv[1]+'.py'))
+    print(find(os.path.join(sys.argv[2],sys.argv[1]+'.py')))

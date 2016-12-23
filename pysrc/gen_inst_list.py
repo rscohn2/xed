@@ -56,14 +56,14 @@ def work(args):  # main function
 
     
     (insts,undoc) = check(args.chip, xeddb, chip_db)
-    ilist = list(set(map(lambda x: x.iclass, insts)))
+    ilist = list(set([x.iclass for x in insts]))
     ilist.sort()
-    ulist = list(set(map(lambda x: x.iclass, undoc)))
+    ulist = list(set([x.iclass for x in undoc]))
     ulist.sort()
     for i in ilist:
-        print i
+        print(i)
     for i in ulist:
-        print i, "UNDOC"
+        print(i, "UNDOC")
     return 0
 
 

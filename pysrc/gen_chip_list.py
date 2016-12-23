@@ -89,7 +89,7 @@ def work(args):  # main function
 
     for inst in xeddb.recs:
         if classes[inst.isa_set] == 'general' and inst.scalar:
-            print "GPR SCALAR", inst.iclass
+            print("GPR SCALAR", inst.iclass)
 
     tlist = []
     for s in all:
@@ -106,7 +106,7 @@ def work(args):  # main function
     tlist.sort(key=keyfn)
 
     for x,y in tlist:
-        print y
+        print(y)
 
     return 0
 

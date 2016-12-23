@@ -142,7 +142,7 @@ class instructions_group_t(object):
         
         groups = []
         #1. generate the groups
-        for iclass,iforms in iarray.items():
+        for iclass,iforms in list(iarray.items()):
             iforms.sort(cmp=cmp_iforms_by_bind_ptrn)
             self._put_iclass_in_group(groups,iclass,iforms)
         
@@ -213,7 +213,7 @@ class ins_group_t(object):
         
     def get_iclasses(self):
         ''' return a list of iclasses in the group'''
-        return self.iclass2iforms.keys()     
+        return list(self.iclass2iforms.keys())     
     
     def get_iform_ids_table(self):
         ''' generate C style table of iform Id's.
@@ -603,13 +603,13 @@ class instruction_codegen_t():
             iform.fbs.sort(cmp=sort_field_bindings) 
             
             # create a list of int values
-            fbs_values = map(lambda x: x.int_value, iform.fbs)
+            fbs_values = [x.int_value for x in iform.fbs]
             
             #find the start index of this list of values in the general list
             #and update the general list as needed  
             iform.fb_index = self._find_fb_occurrence(fbs_list, fbs_values)
                 
-        fbs_list = map(lambda x: str(x), fbs_list)
+        fbs_list = [str(x) for x in fbs_list]
         return fbs_list
             
             
@@ -671,26 +671,26 @@ class instruction_codegen_t():
             iform.bind_ptrn = ', '.join(bind_ptrn)
               
     def _print_log(self):
-        print "---- encoder log ----"
+        print("---- encoder log ----")
         for i,iform in enumerate(self.iform_list):
-            print "%d\n" % i
-            print "IFORM: %s" % str(iform)
-            print "iform index: %d" % iform.rule.iform_id
+            print("%d\n" % i)
+            print("IFORM: %s" % str(iform))
+            print("iform index: %d" % iform.rule.iform_id)
             bind_index = iform.bind_func_index
             bind_fo = self.fb_ptrs_fo_list[bind_index]
-            print "BIND function: %d, %s" % (bind_index,
-                                             bind_fo.function_name)
+            print("BIND function: %d, %s" % (bind_index,
+                                             bind_fo.function_name))
             emit_index = iform.emit_func_index
             emit_fo = self.emit_ptrs_fo_list[emit_index]
-            print "EMIT function: %d, %s" % (emit_index,
-                                             emit_fo.function_name)
+            print("EMIT function: %d, %s" % (emit_index,
+                                             emit_fo.function_name))
             
-            print "NOM_OPCODE: %d" % iform.nominal_opcode
-            print "MAP: %s" % iform.map
-            fbs_values = map(lambda x: x.int_value, iform.fbs)
-            print "FB values: %s" % fbs_values
-            print "\n\n"
-            print "-"*20 
+            print("NOM_OPCODE: %d" % iform.nominal_opcode)
+            print("MAP: %s" % iform.map)
+            fbs_values = [x.int_value for x in iform.fbs]
+            print("FB values: %s" % fbs_values)
+            print("\n\n")
+            print("-"*20) 
     
     def work(self):  # main entry point
         ''' 

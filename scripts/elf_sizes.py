@@ -43,7 +43,7 @@ def _run_cmd(cmd, die_on_errors=True):
         lines = sub.stdout.readlines()
         sub.wait()
         return (sub.returncode, lines)
-    except OSError, e:
+    except OSError as e:
         msg = "Execution failed for:" + str( cmd) + ".\nResult is " + str(e)
         if die_on_errors:
             _die(msg)
@@ -118,7 +118,7 @@ def print_table(data):
     python27 = mbuild.check_python_version(2,7)
     fmt_str27 =  "{0:10s} {1:10,d} Bytes  {2:5.2f} MB {3:10.2f}%"
     fmt_str   =  "%10s %10d Bytes  %5.2f MB %10.2f%%"
-    keys = data.keys()
+    keys = list(data.keys())
     keys.sort()
 
     total = 0
@@ -132,15 +132,15 @@ def print_table(data):
             pct = 0
         mb = data[k]/1024.0/1024.0
         if python27: 
-            print fmt_str27.format(k,data[k],mb,pct)
+            print(fmt_str27.format(k,data[k],mb,pct))
         else:
-            print fmt_str % (k,data[k],mb,pct)
+            print(fmt_str % (k,data[k],mb,pct))
 
     mb = total/1024.0/1024.0
     if python27: 
-        print fmt_str27.format('total', total, mb, 100)
+        print(fmt_str27.format('total', total, mb, 100))
     else:
-        print fmt_str % ('total', total, mb, 100)
+        print(fmt_str % ('total', total, mb, 100))
     
 
 def _find_mode(fn,die_on_errors):

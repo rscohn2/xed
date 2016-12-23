@@ -27,7 +27,7 @@ import sys
 from genutil import *
 
 def _convert_to_list_of_string(x):
-    return map(lambda a: str(a), x)
+    return [str(a) for a in x]
 def _curly_list(x):
     return ('{' + ','.join(x) + '},')
 def _curly_string(x):
@@ -53,7 +53,7 @@ class flag_set_t(object):
                    ('fc1',1),
                    ('fc2',1),
                    ('fc3',1) ] 
-    field_names = map(lambda x: x[0], field_pairs)
+    field_names = [x[0] for x in field_pairs]
 
     def __init__(self, very_technically_accurate=False):
         for (f,w) in flag_set_t.field_pairs:
@@ -224,7 +224,7 @@ class flags_rec_t(object):
          s.append(self.qualifier)
       s.append(self.may_must)
       s.append('[')
-      s.extend(map(str,self.flag_actions))
+      s.extend(list(map(str,self.flag_actions)))
       s.append(']')
       return ' '.join(s)
 
@@ -291,7 +291,7 @@ class flags_info_t(object):
        # flags_recs is a list of flag_rec_t's. Usually 0 or 1. Sometimes 3
        if input_line != '':
           lst  = input_line.split(',')
-          self.flags_recs = map(lambda(x): flags_rec_t(x.strip()), lst)
+          self.flags_recs = [flags_rec_t(x.strip()) for x in lst]
        else:
           self.flags_recs = []
 
@@ -570,8 +570,8 @@ def _testflags():
     a.set('cf')
     a.set('zf')
     a.set('of')
-    print a.as_integer()
-    print a.as_hex()
+    print(a.as_integer())
+    print(a.as_hex())
 
 if __name__ == '__main__':
     _testflags()

@@ -32,7 +32,7 @@ def find_dir(d,required=True):
         idir = os.path.dirname(idir)
     if not os.path.exists(mfile):
         if required:
-            print "Could not find %s file, looking upwards"% (mfile)
+            print("Could not find %s file, looking upwards"% (mfile))
             sys.exit(1)
         return None
     return mfile

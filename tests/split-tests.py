@@ -7,7 +7,7 @@ def work():
     files = glob.glob("*.txt")
     for fn in files:
         lines = file(fn).readlines()
-        lines = map(lambda x: x.strip(), lines)
+        lines = [x.strip() for x in lines]
         ofn = fn + ".new"
         of = open(ofn,'w')
         for line in lines:
