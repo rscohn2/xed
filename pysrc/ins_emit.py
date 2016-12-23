@@ -23,6 +23,7 @@ import encutil
 import genutil
 import actions
 import verbosity
+from util import *
 
 max_in_byte = 256 #max unsigned int per byte
 emit_function_prefix = 'xed_encode_instruction_emit_pattern'
@@ -143,7 +144,7 @@ class instructions_group_t(object):
         groups = []
         #1. generate the groups
         for iclass,iforms in list(iarray.items()):
-            iforms.sort(cmp=cmp_iforms_by_bind_ptrn)
+            cmp_sort(iforms,cmp=cmp_iforms_by_bind_ptrn)
             self._put_iclass_in_group(groups,iclass,iforms)
         
         # 2. generate the iclass to group Id mapping
@@ -225,7 +226,7 @@ class ins_group_t(object):
         for iclass in iclasses:
             values = ''
             iforms_sorted_by_length = self.iclass2iforms[iclass]
-            iforms_sorted_by_length.sort(cmp=cmp_iform_len)
+            cmp_sort(iforms_sorted_by_length,cmp=cmp_iform_len)
             for iform in iforms_sorted_by_length:
                 values += '%4d,' % iform.rule.iform_id
             line = "/*%10s*/    {%s}," % (iclass,values)
@@ -600,7 +601,7 @@ class instruction_codegen_t():
         for iform in self.iform_list:
             # collect all the actions that set fields
             iform.fbs = iform.rule.get_all_fbs() 
-            iform.fbs.sort(cmp=sort_field_bindings) 
+            cmp_sort(iform.fbs,cmp=sort_field_bindings) 
             
             # create a list of int values
             fbs_values = [x.int_value for x in iform.fbs]

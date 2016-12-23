@@ -24,7 +24,7 @@ import codegen
 import genutil
 import ildutil
 import math
-
+from util import *
 
 class operand_field_t(object): 
    def __init__(self,
@@ -387,7 +387,7 @@ class operands_storage_t(object):
             
             operands = list(self.operand_fields.values())
             un_compressed = [x for x in operands if x.compressed == False]
-            un_compressed.sort(cmp=cmp_operands)
+            cmp_sort(un_compressed,cmp=cmp_operands)
             
             # first emit all the operands that does not use bit fields 
             for op in un_compressed:
@@ -402,7 +402,7 @@ class operands_storage_t(object):
         
         else:
             operands_sorted = list(self.operand_fields.values())
-            operands_sorted.sort(cmp=cmp_operands)
+            cmp_sort(operands_sorted,cmp=cmp_operands)
             for op in operands_sorted:
                 cgen.add_var(op.name.lower(), op.storage_type, 
                              accessors='none')
@@ -483,7 +483,7 @@ class operands_storage_t(object):
         using First Fit Decreasing(FFD) strategy '''
         
         operands = self._get_candidates_for_compression()
-        operands.sort(cmp=cmp_operands)
+        cmp_sort(operands,cmp=cmp_operands)
         bins = self._partition_to_bins(operands)
         return bins
     

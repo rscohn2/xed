@@ -22,6 +22,7 @@ import re
 from patterns import *
 from genutil import *
 import enumer
+from util import *
 
 # $$ reg_info_t
 
@@ -166,7 +167,7 @@ def rearrange_regs(regs_list):
     enumvals = []
     for g in groups:
         k = [x for x in regs_list if x.rtype == g]
-        k.sort(cmp=_reg_cmp)
+        cmp_sort(k,cmp=_reg_cmp)
         first = '%s_FIRST' % (g)
         last = '%s_LAST' % (g)
 

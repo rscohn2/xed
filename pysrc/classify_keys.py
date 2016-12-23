@@ -25,7 +25,7 @@ import collections
 
 def read_keys(env):
     kys_lst = []
-    for line in file(env.fn):
+    for line in open(env.fn,'r'):
         line = line.strip()
         line = list(map(int,line.split()))
         kys_lst.append(line)

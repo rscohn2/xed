@@ -63,7 +63,7 @@ class constant_table_t(object):
     def dump(self):
         print("%s(%s)::" % (self.name, self.operand))
         for (v,p) in self.value_string_pairs:
-            if isinstance(p, bytes):
+            if isinstance(p, str):
                 print("%s '%s'" % (hex(v),p))
             else:
                 print("%s  error" %(hex(v)))
@@ -74,7 +74,7 @@ class constant_table_t(object):
         lines.append('static const char* %s[] = {' % (self.string_table_name))
 
         for (v,p) in self.value_string_pairs:
-            if isinstance(p, bytes):
+            if isinstance(p, str):
                 lines.append( '/*%s*/ "%s",' % (hex(v),p))
             else:
                 lines.append( '/*%s*/ 0, /* error */' % (hex(v)))
@@ -197,6 +197,6 @@ def work(lines,   xeddir = '.',   gendir = 'obj'):
 
 if __name__ == '__main__':
    import sys
-   lines = file(sys.argv[1]).readlines()
+   lines = open(sys.argv[1],'r').readlines()
    srcs = work(lines,xeddir='.',gendir='obj')
    print("WROTE: ", "\n\t".join(srcs))

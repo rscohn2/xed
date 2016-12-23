@@ -60,10 +60,10 @@ def aq(s):
 
 def check_mbuild_file(mbuild_file, sig_file):
     if os.path.exists(sig_file):
-        old_hash = file(sig_file).readline().strip()
+        old_hash = open(sig_file,'r').readline().strip()
     else:
         old_hash = ''
-    hash = mbuild.hash_list(file(sys.argv[0]).readlines())
+    hash = mbuild.hash_file(sys.argv[0])
     f = open(sig_file, 'w')
     f.write(hash)
     f.close()
@@ -264,7 +264,7 @@ class generator_inputs_t(object):
             for f in inputs:
                 if os.path.exists(f):
                     output.write("\n\n###FILE: %s\n\n" % (f))
-                    for line in file(f).readlines():
+                    for line in open(f,'r'):
                         line = line.rstrip()
                         #replace the possible symbolic path %(cur_dir)s
                         #FIXME: could have used env's expand_string method,
@@ -296,7 +296,7 @@ def run_generator_preparation(gc, env):
 
 def read_file_list(fn):
     a  = []
-    for f in file(fn).readlines():
+    for f in open(fn,'r'):
         a.append(f.rstrip())
     return a
 
@@ -418,8 +418,8 @@ def legal_header_tagging(env):
         xbc.cdie("ERROR","TAGGING THE IN-USE PYTHON FILES DOES " +
                    "NOT WORK ON WINDOWS.")
 
-    legal_header = file(mbuild.join(env['src_dir'],'misc',
-                                    'apache-header.txt')).readlines()
+    legal_header = open(mbuild.join(env['src_dir'],'misc',
+                                    'apache-header.txt'),'r').readlines()
     header_tag_files(env,public_source_files, legal_header,
                      script_files=False)
     header_tag_files(env,private_source_files, legal_header,
@@ -997,13 +997,13 @@ def repack_and_clean(args, env):
     mbuild.run_command_output_file(nm, output_file_name=all_syms_fn)
 
     # step 3: parse the all_syms_fn.
-    all_syms = file(all_syms_fn).readlines()
+    all_syms = open(all_syms_fn,'r').readlines()
     all_syms = [x.strip() for x in all_syms]
     all_syms = set([x.split(' ',2)[2] for x in all_syms])
 
     # step 4: subtract the public symbols
     api_names_fn = env.src_dir_join(mbuild.join('misc','API.NAMES.txt'))
-    api_names = file(api_names_fn).readlines()
+    api_names = open(api_names_fn,'r').readlines()
     api_names = set([x.strip() for x in api_names])
 
     private_syms = all_syms - api_names
@@ -1186,7 +1186,7 @@ def build_libxed(env,work_queue):
         dup_check[ext_file]=True
            
         dir = os.path.dirname(ext_file)
-        for line in  file(ext_file).readlines():
+        for line in  open(ext_file,'r'):
             line = line.strip()
             line = comment_pattern.sub('',line)
             if len(line) > 0:
@@ -1700,7 +1700,7 @@ def _get_legal_header(env):
         env['legal_header'] = mbuild.join(env['src_dir'],
                                           'misc',
                                           'apache-header.txt')
-    legal_header = file(env['legal_header']).readlines()
+    legal_header = open(env['legal_header'],'r').readlines()
     return legal_header
 
 def _apply_legal_header_to_headers(env,dest):
@@ -1964,7 +1964,7 @@ def get_git_version(env):
 
    # not a git repo or git failed or was not found.
    try:
-      lines = file(fn).readlines()
+      lines = open(fn,'r').readlines()
       line = lines[0].strip()
       return line
    except:

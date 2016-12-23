@@ -41,6 +41,7 @@ import types
 import optparse
 import stat
 import copy
+from util import *
 
 def find_dir(d):
     dir = os.getcwd()
@@ -548,7 +549,7 @@ class conditions_t(object):
         return False
             
     def and_cond(self, c):
-        if type(c) == bytes:
+        if type(c) == str:
             nc = condition_t(c)
         else:
             nc = c
@@ -694,7 +695,7 @@ class rule_t(object):
         self.actions = [] 
         
         for action in action_list:
-            if type(action) == bytes:
+            if type(action) == str:
                 self.actions.append(actions.action_t(action))
             else:
                 self.actions.append(action)
@@ -1332,7 +1333,7 @@ class nonterminal_t(object):
                 weight = len(rule.actions) # try to get shortest form first...
                 _vmsgb("RULE WEIGHT %d" % (weight), str(rule))
             tups.append((weight,rule))
-        tups.sort(cmp=rule_tuple_sort)
+        cmp_sort(tups,cmp=rule_tuple_sort)
         newrules = []
         for (x,y) in tups:
             newrules.append(y)
@@ -1536,7 +1537,7 @@ class encoder_configuration_t(object):
         
         
         global storage_fields
-        lines = file(self.files.storage_fields_file)
+        lines = open(self.files.storage_fields_file,'r')
         operands_storage = operand_storage.operands_storage_t(lines) 
         storage_fields = operands_storage.get_operands()
 
@@ -1857,7 +1858,7 @@ class encoder_configuration_t(object):
     def read_encoder_files(self):
         
         for f in self.files.encoder_input_files:
-            lines = file(f).readlines()
+            lines = open(f,'r').readlines()
             lines = self.expand_state_bits(lines)
             (seqs,nts,ntlufs) = self.parse_encode_lines(lines)
             del lines
@@ -2233,7 +2234,7 @@ class encoder_configuration_t(object):
         I need. """
         continuation_pattern = re.compile(r'\\$')
         _vmsgb("READING",self.files.instructions_file)
-        lines = file(self.files.instructions_file).readlines()
+        lines = open(self.files.instructions_file,'r').readlines()
         lines = process_continuations(lines)
         nts = {}
         nt = None
@@ -2370,7 +2371,7 @@ class encoder_configuration_t(object):
         nts = {}
         ntlufs = {}
         for f in self.files.decoder_input_files:
-            lines = file(f).readlines()
+            lines = open(f,'r').readlines()
             lines = self.expand_state_bits(lines)
             (some_nts, some_ntlufs) = self.parse_decode_lines(lines) # read_flat_
             nts.update(some_nts)
@@ -2425,7 +2426,7 @@ class encoder_configuration_t(object):
         fo.add_code_eol(code)
         # FIXME: 2014-04-17: copy to sorted_iforms still sorts ins_group.iforms
         sorted_iforms = ins_group.iforms
-        sorted_iforms.sort(cmp=ins_emit.cmp_iform_len)
+        cmp_sort(sorted_iforms,cmp=ins_emit.cmp_iform_len)
         for i,iform in enumerate(sorted_iforms):
             # FIXME:2007-07-05 emit the iform.operand_order check of
             # the xed_encode_order[][] array
@@ -2702,7 +2703,7 @@ class encoder_configuration_t(object):
 
         # read the state bits 
         f = self.files.state_bits_file
-        lines = file(f).readlines()
+        lines = open(f,'r').readlines()
         self.state_bits = self.parse_state_bits(lines)
         del lines
 

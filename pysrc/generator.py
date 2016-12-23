@@ -65,7 +65,8 @@ import types
 import glob
 import re
 import optparse
-
+from util import *
+    
 def find_dir(d):
     dir = os.getcwd()
     last = ''
@@ -1916,7 +1917,7 @@ class graph_node(object):
    def value_test_node(self):
       """returns (value_test, value_to_test) """
       if self.is_operand_decider():
-         if len(self.__next__) == 2:
+         if len(self.next) == 2:
             found_value = False
             found_other = False
             value = None
@@ -1934,7 +1935,7 @@ class graph_node(object):
       return (False, None)
      
    def leaf(self):
-      if len(self.__next__) == 0:
+      if len(self.next) == 0:
          return True
       return False
      
@@ -1957,7 +1958,7 @@ class graph_node(object):
          s += ' OPERAND-DECIDER:' + str(self.operand_decider)
       s += eol
       # only print instructions for leaf nodes
-      if len(self.__next__) == 0:
+      if len(self.next) == 0:
          s += pad + 'insts: ' + eol
          for ii in self.instructions:
             s += ii.dump_str(pad + '    ') + eol
@@ -2993,7 +2994,7 @@ def collect_tree_depth(node, depths={}, depth=0):
    """Collect instruction field data for enumerations"""
 
    cdepth = depth + 1
-   if len(node.__next__) == 0:
+   if len(node.next) == 0:
       try:
          depths[cdepth] += 1
       except:
@@ -3141,7 +3142,7 @@ def write_attributes_table(agi, odir):
    t = []
    for s,v in agi.attributes_dict.items():
        t.append((v,s))
-   t.sort(cmp=attr_dict_cmp)
+   cmp_sort(t,cmp=attr_dict_cmp)
    if vattr():
        msgb("Sorted Unique attributes", len(t))
    agi.attributes_ordered =  t
@@ -3245,7 +3246,6 @@ def cmp_invalid(t1,t2):
    if t1 > t2:
       return 1
    return -1
-
 
 def cmp_invalid_vtuple(vt1,vt2):
    """Special sort-comparison function that makes sure the INVALID
@@ -3468,7 +3468,7 @@ def emit_iclass_enum_info(agi):
 
    iclasses = uniqueify(iclasses)
    # sort each to make sure INVALID is first
-   iclasses.sort(cmp=cmp_invalid)
+   cmp_sort(iclasses,cmp=cmp_invalid)
    gendir = agi.common.options.gendir
    xeddir = agi.common.options.xeddir
    agi.iclasses_enum_order = iclasses
@@ -3545,7 +3545,7 @@ def emit_enum_info(agi):
    xeddir = agi.common.options.xeddir
 
 
-   nonterminals.sort(cmp=cmp_invalid)
+   cmp_sort(nonterminals,cmp=cmp_invalid)
    nt_enum =  enum_txt_writer.enum_info_t(nonterminals, xeddir, gendir,
                                           'xed-nonterminal', 
                                           'xed_nonterminal_enum_t',
@@ -3566,7 +3566,7 @@ def emit_enum_info(agi):
        xed3_nt_enum_val_map[i] = upper_dict[upper_nt]
    agi.xed3_nt_enum_val_map = xed3_nt_enum_val_map
 
-   operand_names.sort(cmp=alnum_cmp)
+   cmp_sort(operand_names,cmp=alnum_cmp)
    add_invalid(operand_names)
    on_enum = enum_txt_writer.enum_info_t(operand_names, xeddir, gendir,
                                          'xed-operand', 
@@ -3578,14 +3578,14 @@ def emit_enum_info(agi):
    #operand_enum order
    agi.xed3_operand_names = operand_names
    
-   operand_types.sort(cmp=cmp_invalid)
+   cmp_sort(operand_types,cmp=cmp_invalid)
    ot_enum = enum_txt_writer.enum_info_t(operand_types, xeddir, gendir,
                                          'xed-operand-type', 
                                          'xed_operand_type_enum_t',
                                          'XED_OPERAND_TYPE_',
                                          cplusplus=False)
    
-   attributes.sort(cmp=cmp_invalid)
+   cmp_sort(attributes,cmp=cmp_invalid)
    lena = len(attributes)
    attributes_list = ['INVALID']
    if lena > 0:
@@ -3609,14 +3609,14 @@ def emit_enum_info(agi):
                                          cplusplus=False)
    
 
-   categories.sort(cmp=cmp_invalid)
+   cmp_sort(categories,cmp=cmp_invalid)
    c_enum = enum_txt_writer.enum_info_t(categories, xeddir, gendir,
                                         'xed-category',
                                         'xed_category_enum_t', 
                                         'XED_CATEGORY_',
                                         cplusplus=False)
    
-   extensions.sort(cmp=cmp_invalid)
+   cmp_sort(extensions,cmp=cmp_invalid)
    e_enum = enum_txt_writer.enum_info_t(extensions, xeddir, gendir,
                                         'xed-extension',
                                         'xed_extension_enum_t', 
@@ -3935,10 +3935,10 @@ def partition_attributes(agi, attr):
     #msgb("PARTITIONING ATTRIBUTES", '[%s]' % (",".join(attr)))
     for a in attr:
         i = lookup_attr(agi,a)
-        b = i / 64
-        try:
+        b = i // 64
+        if b in d:
             d[b].append(a)
-        except:
+        else:
             d[b] = [a]
     return d
     
@@ -4462,7 +4462,7 @@ def collect_and_emit_iforms(agi,options):
       vtuples.extend(vsub)
 
    #msge("VTUPLES %s" % (str(vtuples)))
-   vtuples.sort(cmp=cmp_invalid_vtuple)
+   cmp_sort(vtuples,cmp=cmp_invalid_vtuple)
 
    agi.iform_tuples = vtuples
    
@@ -4612,7 +4612,7 @@ def renumber_nodes_sub(options,node):
 
 def merge_child_nodes(options,node):
    """Merge the children and grandchildren of this node."""
-   candidates = len(node.__next__)
+   candidates = len(node.next)
    if vmerge():
       msge(str(candidates) + " merge candidate")
    # merge tokens??
@@ -5219,7 +5219,7 @@ class all_generator_info_t(object):
 
       
    def add_file_name(self,fn,header=False):
-      if type(fn) == bytes:
+      if type(fn) == str:
           fns = [fn]
       elif type(fn) == list:
           fns = fn
@@ -5718,7 +5718,7 @@ def emit_operand_storage(agi):
 
 def call_ctables(agi):
     """Conversion tables for operands"""
-    lines = file(agi.common.options.ctables_input_fn).readlines()
+    lines = open(agi.common.options.ctables_input_fn,'r').readlines()
     srcs = ctables.work(lines,
                         xeddir=agi.common.options.xeddir,
                         gendir=agi.common.options.gendir)
@@ -6186,9 +6186,9 @@ def emit_pointer_name_lookup(options, widths_list):
    pointer name for disassembly."""
 
    max_width = 0
-   for bytes, name, suffix in widths_list:
-      if int(bytes) > max_width:
-         max_width = int(bytes)+1
+   for b, name, suffix in widths_list:
+      if int(b) > max_width:
+         max_width = int(b)+1
    
    hfp = xed_file_emitter_t(options.xeddir,
                            options.gendir,
@@ -6201,16 +6201,16 @@ def emit_pointer_name_lookup(options, widths_list):
    fo = function_object_t('xed_init_pointer_names', 'void')
    fo.add_code_eol("memset((void*)xed_pointer_name,0," +
                    "sizeof(const char*)*XED_MAX_POINTER_NAMES)")
-   for bytes, name, suffix in widths_list:
+   for b, name, suffix in widths_list:
       # add a trailing space to the name for formatting.
-      s = 'xed_pointer_name[%s] = \"%s \"' % (bytes, name)
+      s = 'xed_pointer_name[%s] = \"%s \"' % (b, name)
       fo.add_code_eol(s)
 
    fo.add_code_eol("memset((void*)xed_pointer_name_suffix,0,"+
                    "sizeof(const char*)*XED_MAX_POINTER_NAMES)")
-   for bytes, name, suffix in widths_list:
+   for b, name, suffix in widths_list:
       # add a trailing space to the name for formatting.
-      s = 'xed_pointer_name_suffix[%s] = \"%s \"' % (bytes, suffix)
+      s = 'xed_pointer_name_suffix[%s] = \"%s \"' % (b, suffix)
       fo.add_code_eol(s)
 
    # write the file in our customized way
@@ -6237,10 +6237,10 @@ def refine_pointer_names_input(lines):
       wrds = pline.split()
       ntokens = len(wrds)
       if ntokens == 3:
-         (bytes, name, suffix) = wrds
+         (b, name, suffix) = wrds
       else:
          die("Bad number of tokens on line: " + line)
-      widths_list.append((bytes,name,suffix))
+      widths_list.append((b,name,suffix))
    return widths_list
    
 def gen_pointer_names(options,agi):
@@ -6257,7 +6257,7 @@ def emit_exception_enum(agi):
     if 'INVALID' not in agi.exception_types:
         agi.exception_types.append('INVALID')
     agi.exception_types = uniqueify(agi.exception_types)
-    agi.exception_types.sort(cmp=cmp_invalid)
+    cmp_sort(agi.exception_types,cmp=cmp_invalid)
     enum = enum_txt_writer.enum_info_t( agi.exception_types,
                                         agi.common.options.xeddir,
                                         agi.common.options.gendir,
@@ -6297,7 +6297,7 @@ def decorate_instructions_with_exception_types(agi):
 def emit_ctypes_enum(options, ctypes_dict):
    ctypes_dict['INVALID']=True
    type_names = list(ctypes_dict.keys())
-   type_names.sort(cmp=cmp_invalid)
+   cmp_sort(type_names,cmp=cmp_invalid)
    ctypes_enum =  enum_txt_writer.enum_info_t(type_names,
                                               options.xeddir, options.gendir,
                                               'xed-operand-ctype',
