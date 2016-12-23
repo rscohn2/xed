@@ -38,6 +38,7 @@ def _run_cmd(cmd, die_on_errors=True):
     try:
         sub = subprocess.Popen(cmd, 
                                shell=True, 
+                               universal_newlines=True,
                                stdout=subprocess.PIPE, 
                                stderr=subprocess.STDOUT)
         lines = sub.stdout.readlines()

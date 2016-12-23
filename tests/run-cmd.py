@@ -75,7 +75,7 @@ def make_bulk_tests(env):
     i = 0
     for bulk_test_file in  env['bulk_tests']:
         print("[READING BULK TESTS] %s" % (bulk_test_file))
-        tests = file(bulk_test_file).readlines()
+        tests = open(bulk_test_file,'r').readlines()
         tests = [x.strip() for x in tests]
         for test in tests:
             if test:
@@ -84,7 +84,7 @@ def make_bulk_tests(env):
                 i = i + 1
 
 def compare_file(reference, this_test):
-    ref_lines = file(reference).readlines()
+    ref_lines = open(reference,'r').readlines()
     ref_lines = [x.rstrip() for x in ref_lines]
     this_test = [x.rstrip() for x in this_test]
     for line in difflib.unified_diff(ref_lines, this_test,
@@ -120,7 +120,7 @@ def all_codes_present(specified_codes, test_codes):
 def one_test(env,test_dir):
 
     cmd_fn = os.path.join(test_dir,"cmd")
-    cmd = file(cmd_fn).readlines()[0]
+    cmd = open(cmd_fn,'r').readlines()[0]
 
     # abspath required for windoze
     build_dir = mbuild.posix_slashes(os.path.abspath(env['build_dir']))
@@ -176,7 +176,7 @@ def rebase_tests(env):
     test_dirs = find_tests(env)
     for test_dir in test_dirs:
         cmd_fn = os.path.join(test_dir,"cmd")
-        test_cmd = file(cmd_fn).readlines()[0]
+        test_cmd = open(cmd_fn,'r').readlines()[0]
         create_reference(env, test_dir, test_cmd, make_new=False)
     
 def run_tests(env):
@@ -191,7 +191,7 @@ def run_tests(env):
         mbuild.msgb("TESTING" , tdir)
 
         codes_fn = os.path.join(tdir,"codes")
-        codes = file(codes_fn).readlines()[0].strip().split()
+        codes = open(codes_fn,'r').readlines()[0].strip().split()
 
         if all_codes_present(env['codes'],codes):
             okay = one_test(env,tdir)
